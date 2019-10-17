@@ -1,0 +1,46 @@
+version: '3'
+services:
+ 
+        rundeck:
+            image: jordan/rundeck:2.11.5
+            container_name: rundeck
+            hostname: rundeck
+            depends_on:
+                - mysql
+            ports:
+              - "4443:4443"
+            environment:
+                - EXTERNAL_SERVER_URL=https://localhost:4443
+                - RUNDECK_WITH_SSL=true
+                - SKIP_DATABASE_SETUP=true
+                - NO_LOCAL_MYSQL=true
+                - DATABASE_URL = jdbc:mysql://mysql/rundeckdb
+                - RUNDECK_PASSWORD=rundeck123
+                - RUNDECK_STORAGE_PROVIDER=db
+            restart: always
+            working_dir: /var/rundeck
+            volumes:
+                - d:\docker\test\var:/var/rundeck
+                - d:\docker\test\etc:/etc/rundeck
+        mysql:
+            image: mariadb:10.1.26
+            restart: always
+            ports:
+                - "3306:3306"
+            container_name: mariadb
+            environment:
+              # - MYSQL_ROOT_PASSWORD=root123
+              - MYSQL_RANDOM_ROOT_PASSWORD=yes
+              - MYSQL_USER = rundeck
+              - MYSQL_PASSWORD = rundeck123
+              - MYSQL_DATABASE=rundeckdb
+        tomcat:
+            image: tomcat:8.0
+            container_name: tomcat
+            # restart:always
+            ports:
+                - "8888:8080"
+                - "2222:22"      
+              #note : user user mysql account
+              #note: ince you are using the mysql:5.7 image (mariadb:10.3 in my case), the database is already setup. Since you didn't pass DATABASE_ADMIN_USER or DATABASE_ADMIN_PASSWORD, it's defaulting to rundeck, it's not able to connect.
+              #note: https://github.com/jjethwa/rundeck/commit/155db62ea3cdcc428f6a69b4f75a9f9f89b9e3f6

@@ -1,0 +1,40 @@
+version: '3'
+services:
+
+    rundeck:
+        image: jordan/rundeck:2.11.5
+        container_name: rundeck
+        ports:
+          - "4443:4443"
+        environment:
+            - EXTERNAL_SERVER_URL=https://localhost:4443
+            - RUNDECK_WITH_SSL=true
+        restart: always
+        working_dir: /var/rundeck
+        volumes:
+            - d:\docker\rundeck\data\var:/var/rundeck
+            - d:\docker\rundeck\data\etc:/etc/rundeck
+    tomcat:
+        image: tomcat:8.0
+        container_name: tomcat
+        # restart:always
+        
+        ports:
+            - "8888:8080"
+            - "2222:22"
+        
+        # apt-get update && apt-get install openssh-server
+        # permit root login yes
+        # /etc/init.d/ssh restart 
+        # ssh root@localhost -p 2222
+        
+          # <node name="tomcat"
+          # description="tomcat server" 
+          # tags="tomcat" 
+          # hostname="192.168.78.93:2222" 
+          # username="root"
+          # osFamily="unix"
+          # ssh-password-storage-path="keys/tomcat"
+          # ssh-authentication="password" 
+          # sudo-command-enabled="true" />
+          # curl -T "test.war" "http://tomcat:tomcat@<machine b>:8080/manager/text/deploy?path=/temp&update=true" -v

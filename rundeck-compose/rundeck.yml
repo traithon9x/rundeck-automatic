@@ -1,0 +1,54 @@
+version: '3'
+services:
+ 
+    rundeck:
+        image: jordan/rundeck:2.11.5
+        container_name: rundeck
+        hostname: rundeck
+        depends_on:
+            - mariadb
+        ports:
+            - "4443:4443"
+        environment:
+            - EXTERNAL_SERVER_URL=https://localhost:4443
+            - RUNDECK_WITH_SSL=true
+            - NO_LOCAL_MYSQL=true
+            - SKIP_DATABASE_SETUP=true
+            - DATABASE_URL=jdbc:mysql://mariadb/rundeckdb?autoReconnect=true
+            - DATABASE_ADMIN_USER=root
+            - DATABASE_ADMIN_PASSWORD=root123
+            - RUNDECK_STORAGE_PROVIDER=db
+            - RUNDECK_PASSWORD=rundeck123
+        restart: always
+        working_dir: /var/rundeck
+        volumes:
+            - D:\docker\rundeck\data\var:/var/rundeck
+            - D:\docker\rundeck\data\etc:/etc/rundeck
+    mariadb:
+        image: mariadb:10.1.26
+        restart: always
+        ports:
+            - "3307:3306"
+        container_name: mariadb
+        environment:
+            - MYSQL_ROOT_PASSWORD=root123
+            - MYSQL_DATABASE=rundeckdb
+            - MYSQL_USER=rundeck
+            - MYSQL_PASSWORD=rundeck123
+    tomcat:
+        image: test/tomcat:8.0
+        container_name: tomcat
+        volumes:
+            - D:\docker\rundeck\data\tomcat-file:/root
+            - D:\docker\rundeck\data\tomcat-conf:/usr/local/tomcat/conf
+            # - D:\docker\rundeck\data\ssh:/etc/ssh
+        restart: always
+        # command: /etc/init.d/ssh start
+        ports:
+            - "8888:8080"
+            - "2222:22"      
+            #note : user root account 
+            #note: ince you are using the mysql:5.7 image (mariadb:10.3 in my case), the database is already setup. Since you didn't pass DATABASE_ADMIN_USER or DATABASE_ADMIN_PASSWORD, it's defaulting to rundeck, it's not able to connect.
+            #note: https://github.com/jjethwa/rundeck/commit/155db62ea3cdcc428f6a69b4f75a9f9f89b9e3f6
+            #notepad ssh root@0.0.0.0 -p 2222
+            #note: include file dockerfile locate D:\docker\rundeck\rundeck-compose\dockerfile to build images >>test/tomcat:8.0 openssh
